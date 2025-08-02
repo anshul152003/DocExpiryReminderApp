@@ -6,16 +6,24 @@ exports.getAllDocuments = async (req, res) => {
 };
 
 exports.createDocument = async (req, res) => {
-    const { title, category, expiryDate, fileUrl } = req.body;
+  const { title, category, expiryDate } = req.body;
+  const fileUrl = req.file ? `/uploads/${req.file.filename}` : "";
+
+  try {
     const doc = new Document({
-        userId: req.user.userId,
-        title,
-        category,
-        expiryDate,
-        fileUrl
+      userId: req.user.userId,
+      title,
+      category,
+      expiryDate,
+      fileUrl,
     });
+
     await doc.save();
     res.status(201).json(doc);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to create document" });
+  }
 };
 
 exports.updateDocument = async (req, res) => {

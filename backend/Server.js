@@ -16,6 +16,8 @@ mongoose.connect(MONGO_URI)
 
 app.use('/api/auth', require('./routes/Auth.js'));
 app.use('/api/documents', require('./routes/Documents.js'));
+app.use('/uploads', express.static('uploads'));
+
 runEmailReminderJob();
 
 const PORT = process.env.PORT || 5000;

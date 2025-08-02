@@ -1,13 +1,26 @@
 const express = require('express');
 const router = express.Router();
-const auth = require('../middleware/AuthMiddleware');
-const { getAllDocuments, createDocument, updateDocument, deleteDocument } = require('../controllers/DocumentController');
+const documentController = require('../controllers/documentController');
+const authMiddleware = require('../middleware/AuthMiddleware');
 
-router.use(auth);
+const multer = require('multer');
+const path = require('path');
 
-router.get('/', getAllDocuments);
-router.post('/create', createDocument);
-router.put('/:id', updateDocument);
-router.delete('/:id', deleteDocument);
+// File storage config
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/'); // Make sure this folder exists
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  },
+});
+const upload = multer({ storage });
+
+// Routes
+router.get('/', authMiddleware, documentController.getAllDocuments);
+router.post('/create', authMiddleware, upload.single('file'), documentController.createDocument);
+router.put('/:id', authMiddleware, documentController.updateDocument);
+router.delete('/:id', authMiddleware, documentController.deleteDocument);
 
 module.exports = router;
